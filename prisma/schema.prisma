@@ -1,0 +1,69 @@
+// GroomWise Prisma Schema
+// Tech stack: PostgreSQL via Prisma 6 (prisma-client generator)
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Hairstyle catalog
+// ---------------------------------------------------------------------------
+model Hairstyle {
+  id           String   @id @default(cuid())
+  name         String
+  imageUrl     String
+  description  String
+  faceShapes   String[] // e.g. ["oval", "square"]
+  hairType     String   // e.g. "straight", "wavy", "curly", "coily"
+  textureNotes String?
+}
+
+// ---------------------------------------------------------------------------
+// Skincare module
+// ---------------------------------------------------------------------------
+model SkinProblem {
+  id          String @id @default(cuid())
+  name        String // e.g. "oily skin"
+  description String
+}
+
+model Ingredient {
+  id         String   @id @default(cuid())
+  name       String   // e.g. "salicylic acid"
+  aboutText  String
+  problemIds String[] // relation to SkinProblem ids
+}
+
+model QuizQuestion {
+  id       String @id @default(cuid())
+  question String
+  options  Json   // options + which SkinProblem(s) each option scores toward
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — Face shape correction feedback loop
+//
+// Stores correction signals when a user reports the wrong face shape.
+// Privacy guarantee: no image data, no user identity — only numeric ratios,
+// two text labels, and a timestamp. See docs/groomwise-antigravity-prompt.md.
+//
+// jawAngle is nullable — it's populated once Phase 2 calibration is done.
+// confidence mirrors the existing hysteresis value ('good' | 'low').
+// ---------------------------------------------------------------------------
+model FaceShapeCorrection {
+  id             String   @id @default(cuid())
+  predictedShape String   // what the classifier said
+  correctedShape String   // what the user says it actually is
+  confidence     String   // 'good' | 'low' — from existing confidence hysteresis
+  lengthToWidth  Float    // faceHeight / cheekboneWidth (IOD-normalized)
+  jawToCheek     Float    // jawWidth / cheekboneWidth (IOD-normalized)
+  browToCheek    Float    // browWidth / cheekboneWidth (IOD-normalized)
+  jawAngle       Float?   // average jaw-corner angle in degrees (nullable until calibrated)
+  createdAt      DateTime @default(now())
+}

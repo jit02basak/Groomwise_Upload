@@ -1,0 +1,18 @@
+/* Global styles — Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* Enable class-based dark mode variant in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* Smooth global theme transition */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
+/* Tooltip fade-in-up animation (used by UploadStep camera-disabled tooltip) */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
